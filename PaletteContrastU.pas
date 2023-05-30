@@ -1,0 +1,108 @@
+unit PaletteContrastU;
+// created by Josh Greig
+// when using any code from this project, give proper credit to me.
+interface
+
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  StdCtrls, ExtCtrls,Math;
+
+type
+  TContrastFrm = class(TForm)
+    BrightnessScrBar: TScrollBar;
+    Panel1: TPanel;
+    RedScrBar: TScrollBar;
+    GreenScrBar: TScrollBar;
+    BlueScrBar: TScrollBar;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    OKBtn: TButton;
+    CancelBtn: TButton;
+    procedure CancelBtnClick(Sender: TObject);
+    procedure OKBtnClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormShow(Sender: TObject);
+    procedure BrightnessScrBarChange(Sender: TObject);
+  private
+         TempPalette: array of tcolor;
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  ContrastFrm: TContrastFrm;
+
+   
+implementation
+uses PaletteU;
+{$R *.DFM}
+
+function GetRGBBrightness(ctrast,br,bg,bb: byte;co: tcolor): tcolor;
+var
+  r,g,b: byte;
+begin
+     r:=GetRValue(co);
+     g:=GetGValue(co);
+     b:=GetBValue(co);
+     r:=min(255,round(256*power(r/256,ctrast*bb/$4000)));
+     g:=min(255,round(256*power(g/256,ctrast*bg/$4000)));
+     b:=min(255,round(256*power(b/256,ctrast*br/$4000)));
+     Result:=rgb(r,g,b);
+end;
+
+procedure TContrastFrm.CancelBtnClick(Sender: TObject);
+var
+  x: integer;
+begin
+     for x:=high(TempPalette) downto 0 do
+         PaletteData[x]:=TempPalette[x];
+     // original values, restored
+     PaletteViewer.UpdateDisplay;
+     Close;
+end;
+
+procedure TContrastFrm.OKBtnClick(Sender: TObject);
+begin
+     Close;
+end;
+
+procedure TContrastFrm.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+     TempPalette:=nil; // free the space used by this array
+end;
+
+procedure TContrastFrm.FormShow(Sender: TObject);
+var
+  x: integer;
+begin
+     SetLength(TempPalette,High(PaletteData)+1);
+     for x:=High(PaletteData) downto 0 do
+         TempPalette[x]:=PaletteData[x];
+     RedScrBar.Position:=128;
+     GreenScrBar.Position:=128;
+     BlueScrBar.Position:=128;
+     BrightnessScrBar.Position:=128;
+     { The palette entries are temperarily stored in TempPalette to allow
+     the user to Cancel changes.  Also, the brightness adjustment probably
+     wouldn't work if it isn't calculating the new colours from constant ones.}
+end;
+
+procedure TContrastFrm.BrightnessScrBarChange(Sender: TObject);
+var
+  x: integer;
+begin
+     for x:=high(TempPalette) downto 0 do
+     begin
+          PaletteData[x]:=(GetRGBBrightness(BrightnessScrBar.Position,
+          BlueScrBar.Position,GreenScrBar.Position,RedScrBar.Position,
+          (TempPalette[x])));
+     end;
+     PaletteViewer.UpdateDisplay;
+     PaletteViewer.Repaint;
+end;
+
+end.
