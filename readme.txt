@@ -7,9 +7,3 @@ Outputs: Jasc PaintShop Pal(pal), MS Pal(pal), Adobe Colour Table(ACT), GBAPal(r
         GBA c source code, PC c source code(c), Delphi unit(pas), JavaScript(js)...
 
 How to use it?: Look in the html file.
-
-Source Code: Delphi 4 source code is freely available upon request.
-
-Contact: greijos@hotmail.com
-
-Download Site: http://www.bmts.com/~gdonald/
